@@ -1,29 +1,22 @@
 import { CalendarIcon } from "@heroicons/react/20/solid";
 import axios from "axios";
-import { useState } from "react";
+import { updateTask } from "features/todo/todoSlice";
+import { useDispatch } from "react-redux";
 import ActionsListCard from "../actions_card";
 // import ActionsListCard from "../actions_card";
 
 function OneTaskItem(params) {
-  const { task, setTaskList, handleUpdate, index, addNestedTask } = params;
-  const [isChecked, setIsChecked] = useState(task.completed);
+  const { task } = params;
+  const dispatch = useDispatch();
+  const isChecked = task.completed;
   const handleOnChange = () => {
     axios
       .patch(`http://localhost:3001/todos/${task.id}`, {
         completed: !isChecked,
       })
       .then((res) => {
-        setIsChecked(!isChecked);
+        dispatch(updateTask(res.data));
       });
-  };
-  const handleAddNestedTask = () => addNestedTask(task.id);
-
-  const handleUpdateTask = () => handleUpdate(index);
-
-  const deleteTask = () => {
-    axios.delete(`http://localhost:3001/todos/${task.id}`).then((res) => {
-      setTaskList([]);
-    });
   };
 
   return (
@@ -37,7 +30,7 @@ function OneTaskItem(params) {
         className="h-5 w-5 rounded-lg border-gray-300 text-indigo-600 focus:ring-indigo-500"
       />
       <div className="flex-1 flex w-full flex-col space-y-2">
-        <div className="flex space-x-5 items-center justify-between">
+        <div className="flex space-x-5 items-start justify-between">
           <span
             className={`${
               isChecked ? "line-through" : ""
@@ -46,8 +39,14 @@ function OneTaskItem(params) {
             {task.title}
           </span>
           <div className="flex items-center space-x-2">
-            <CalendarIcon className="h-4 w-4 text-gray-600" />
-            <p className="font-normal text-xs text-gray-600">{task.endDate} </p>
+            {task.endDate && (
+              <>
+                <CalendarIcon className="h-4 w-4 text-gray-600" />
+                <p className="font-normal text-xs text-gray-600">
+                  {task.endDate}{" "}
+                </p>
+              </>
+            )}
           </div>
         </div>
 
@@ -55,11 +54,7 @@ function OneTaskItem(params) {
           {task.description}{" "}
         </p>
       </div>
-      <ActionsListCard
-        handleNewTask={handleAddNestedTask}
-        handleUpdateTask={handleUpdateTask}
-        handleDeleteTask={deleteTask}
-      />
+      <ActionsListCard task={task} />
     </div>
   );
 }
