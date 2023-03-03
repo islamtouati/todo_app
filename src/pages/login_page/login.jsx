@@ -3,7 +3,9 @@ import axios from "axios";
 import { initUser } from "features/todo/todoSlice";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
+import toast, { Toaster } from "react-hot-toast";
 
+const notifyError = () => toast.error("User doesn't exist");
 export default function LoginPage(params) {
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
@@ -16,12 +18,17 @@ export default function LoginPage(params) {
     axios
       .get(`http://localhost:3001/authentification?email=${email}`)
       .then((res) => {
-        dispatch(initUser(res.data[0]));
-        localStorage.setItem("user", JSON.stringify(res.data[0]));
+        if (res.data[0]) {
+          dispatch(initUser(res.data[0]));
+          localStorage.setItem("user", JSON.stringify(res.data[0]));
+        } else {
+          notifyError();
+        }
       });
   };
   return (
     <>
+      <Toaster />
       <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-md space-y-8">
           <div>
@@ -49,6 +56,7 @@ export default function LoginPage(params) {
                   onChange={handleChange}
                 />
               </div>
+              <p className="w-full text-sm text-red">User doesn't exist</p>
             </div>
 
             <div>
