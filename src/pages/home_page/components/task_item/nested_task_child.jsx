@@ -4,37 +4,33 @@ import {
   TrashIcon,
 } from "@heroicons/react/20/solid";
 import axios from "axios";
-import { useState } from "react";
+import { deleteNestedTask, updateNestedTask } from "features/todo/todoSlice";
+import { openModel } from "features/update_nested_task/updateNestedTaskSlice";
+import { useDispatch } from "react-redux";
 
 function NestedTaskChild(params) {
+  const dispatch = useDispatch();
   const { task } = params;
-  const [isChecked, setIsChecked] = useState(task.completed);
+  // const [isChecked, setIsChecked] = useState(task.completed);
+  const isChecked = task.completed;
   const handleOnChange = () => {
     axios
-      .patch(`http://localhost:3001/nestedTodo/${task.id}`, {
+      .patch(`http://localhost:3001/nestedTodos/${task.id}`, {
         completed: !isChecked,
       })
       .then((res) => {
-        setIsChecked(!isChecked);
+        // setIsChecked(!isChecked);
+        console.log(res.data);
+        dispatch(updateNestedTask(res.data));
       });
   };
   const handleUpdateTask = () => {
-    axios
-      .patch(`http://localhost:3001/nestedTodo/${task.id}`, {
-        completed: !isChecked,
-      })
-      .then((res) => {
-        // setIsChecked(!isChecked);
-      });
+    dispatch(openModel(task));
   };
   const handleDeleteTask = () => {
-    axios
-      .delete(`http://localhost:3001/nestedTodo/${task.id}`, {
-        completed: !isChecked,
-      })
-      .then((res) => {
-        // setIsChecked(!isChecked);
-      });
+    axios.delete(`http://localhost:3001/nestedTodos/${task.id}`).then((res) => {
+      dispatch(deleteNestedTask(task));
+    });
   };
 
   return (
@@ -48,7 +44,7 @@ function NestedTaskChild(params) {
         className="h-5 w-5 rounded-lg border-gray-300 text-indigo-600 focus:ring-indigo-500"
       />
       <div className="flex-1 flex w-full flex-col space-y-2">
-        <div className="flex space-x-5 items-center justify-between">
+        <div className="flex space-x-5 items-start justify-between">
           <span
             className={`${
               isChecked ? "line-through" : ""
@@ -57,8 +53,14 @@ function NestedTaskChild(params) {
             {task.title}
           </span>
           <div className="flex items-center space-x-2">
-            <CalendarIcon className="h-4 w-4 text-gray-600" />
-            <p className="font-normal text-xs text-gray-600">{task.endDate} </p>
+            {task.endDate && (
+              <>
+                <CalendarIcon className="h-4 w-4 text-gray-600" />
+                <p className="font-normal text-xs text-gray-600">
+                  {task.endDate}{" "}
+                </p>
+              </>
+            )}
           </div>
         </div>
 

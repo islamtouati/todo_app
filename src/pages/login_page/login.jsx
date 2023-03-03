@@ -1,9 +1,11 @@
 import { KeyIcon, LockClosedIcon } from "@heroicons/react/20/solid";
 import axios from "axios";
+import { initUser } from "features/todo/todoSlice";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 
 export default function LoginPage(params) {
-  const { setUser } = params;
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
 
   const handleChange = (event) => {
@@ -14,7 +16,7 @@ export default function LoginPage(params) {
     axios
       .get(`http://localhost:3001/authentification?email=${email}`)
       .then((res) => {
-        setUser(res.data[0]);
+        dispatch(initUser(res.data[0]));
         localStorage.setItem("user", JSON.stringify(res.data[0]));
       });
   };

@@ -1,10 +1,17 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import axios from "axios";
+import { closeModel } from "features/add_task/addTaskSlice";
+import { addTask } from "features/todo/todoSlice";
 import { Fragment, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 function NewTaskFragment(params) {
-  const { isOpen, closeModal, userID, taskList, setTaskList } = params;
+  const isOpen = useSelector((state) => state.addTask.isOpen);
+  const taskList = useSelector((state) => state.todo.todoList);
+  const userID = useSelector((state) => state.todo.user.id);
+  const dispatch = useDispatch();
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -20,24 +27,32 @@ function NewTaskFragment(params) {
   };
   const handleSubmit = (event) => {
     event.preventDefault();
+    var date = endDate;
+    if (endDate) {
+      var dateSplitted = endDate.split("-");
+      date = dateSplitted[2] + "/" + dateSplitted[1] + "/" + dateSplitted[0];
+    }
     let task = {
       title: title,
       description: description,
-      endDate: endDate,
+      endDate: date,
       pos: taskList[taskList.length - 1].pos + 1,
       userId: userID,
       completed: false,
     };
 
     axios.post(`http://localhost:3001/todos`, task).then((res) => {
-      taskList.push(task);
-      setTaskList(taskList);
-      closeModal();
+      dispatch(addTask(res.data));
+      dispatch(closeModel());
     });
   };
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={closeModal}>
+      <Dialog
+        as="div"
+        className="relative z-10"
+        onClose={() => dispatch(closeModel())}
+      >
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"

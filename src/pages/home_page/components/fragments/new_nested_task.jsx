@@ -1,10 +1,15 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import axios from "axios";
+import { closeModel } from "features/add_nested_task/addNestedTaskSlice";
+import { addNestedTask } from "features/todo/todoSlice";
 import { Fragment, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 function NewNestedTaskFragment(params) {
-  const { isOpen, closeModal, taskID, taskList, setTaskList } = params;
+  const isOpen = useSelector((state) => state.addNestedTask.isOpen);
+  const taskID = useSelector((state) => state.addNestedTask.taskID);
+  const dispatch = useDispatch();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -20,10 +25,15 @@ function NewNestedTaskFragment(params) {
   };
   const handleSubmit = (event) => {
     event.preventDefault();
+    var date = endDate;
+    if (endDate) {
+      var dateSplitted = endDate.split("-");
+      date = dateSplitted[2] + "/" + dateSplitted[1] + "/" + dateSplitted[0];
+    }
     let task = {
       title: title,
       description: description,
-      endDate: endDate,
+      endDate: date,
       todoId: taskID,
       completed: false,
     };
@@ -31,14 +41,17 @@ function NewNestedTaskFragment(params) {
     axios
       .post(`http://localhost:3001/nestedTodos?todoId=${taskID}`, task)
       .then((res) => {
-        taskList.pop();
-        setTaskList(taskList);
-        closeModal();
+        dispatch(addNestedTask(res.data));
+        dispatch(closeModel());
       });
   };
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={closeModal}>
+      <Dialog
+        as="div"
+        className="relative z-10"
+        onClose={() => dispatch(closeModel())}
+      >
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"

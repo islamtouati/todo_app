@@ -1,13 +1,13 @@
 import { Dialog, Transition } from "@headlessui/react";
 import axios from "axios";
-import { updateTask } from "features/todo/todoSlice";
-import { closeModel } from "features/update_task/updateTaskSlice";
+import { updateNestedTask } from "features/todo/todoSlice";
+import { closeModel } from "features/update_nested_task/updateNestedTaskSlice";
 import { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-function UpdateTaskFragment() {
-  const isOpen = useSelector((state) => state.updateTask.isOpen);
-  const task = useSelector((state) => state.updateTask.task);
+function UpdateNestedTaskFragment() {
+  const isOpen = useSelector((state) => state.updateNestedTask.isOpen);
+  const task = useSelector((state) => state.updateNestedTask.task);
   const dispatch = useDispatch();
 
   const [title, setTitle] = useState("");
@@ -48,9 +48,9 @@ function UpdateTaskFragment() {
       endDate: date,
     };
     axios
-      .patch(`http://localhost:3001/todos/${task.id}`, taskToUpdate)
+      .patch(`http://localhost:3001/nestedTodos/${task.id}`, taskToUpdate)
       .then((res) => {
-        dispatch(updateTask(res.data));
+        dispatch(updateNestedTask(res.data));
         dispatch(closeModel());
       });
   };
@@ -89,7 +89,7 @@ function UpdateTaskFragment() {
                   as="h3"
                   className="text-lg font-medium leading-6 text-gray-900"
                 >
-                  Update Task
+                  Update Nested Task
                 </Dialog.Title>
                 <div className="mt-2">
                   <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -158,4 +158,4 @@ function UpdateTaskFragment() {
     </Transition>
   );
 }
-export default UpdateTaskFragment;
+export default UpdateNestedTaskFragment;
