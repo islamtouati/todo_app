@@ -56,7 +56,6 @@ export default function LoginPage(params) {
                   onChange={handleChange}
                 />
               </div>
-              <p className="w-full text-sm text-red">User doesn't exist</p>
             </div>
 
             <div>
